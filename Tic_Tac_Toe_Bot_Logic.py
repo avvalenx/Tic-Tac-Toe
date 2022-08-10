@@ -1,22 +1,6 @@
 def computer_move_2(player_move):
-    #all corner moves are even numbers
-    if player_move == 0:
-        return 8
-    elif player_move == 2:
-        return 6
-    elif player_move == 6:
-        return 2
-    elif player_move == 8:
-        return 0
-    #all edge moves
-    elif player_move == 1:
-        return 7
-    elif player_move == 5:
-        return 3
-    elif player_move == 7:
-        return 1
-    elif player_move == 3:
-        return 5
+    a = {0:8, 1:7, 2:6, 3:5, 5:3, 6:2, 7:1, 8:0}
+    return a[player_move]
 
 def find_int_index(list):
     for item in list:
