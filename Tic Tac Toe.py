@@ -34,40 +34,53 @@ def check_win():
             return True
     return False
 
-def place_x_or_o(place, x_or_o):
-    #FIXME in 2 player mode going somewhere already played results in turn being skipped
-    #FIXME in single player mode going somewhere already played breaks everything
-    try:
+def place_x_or_o(x_or_o, place=None):
+    turn = True
+    while turn:
+        #if it is a humans turn to go
+        if place == None:
+            try:
+                place = int(input('choose where to place your move:\n'))
+            except Exception:
+                place = 10
         #first row placement
         if place <= 2:
-            #make sure space is not taken
-            if board[0][place] == 'X' or board[0][place] == 'O':
-                print('Choose a different space that one is taken')
-            #place move add to counter change turn and display board
-            else:
-                board[0][place] = x_or_o
-                print_board()
+                #make sure space is not taken
+                if board[0][place] == 'X' or board[0][place] == 'O':
+                    print('Choose a different space that one is taken')
+                    place = None
+                #place move add to counter change turn and display board
+                else:
+                    board[0][place] = x_or_o
+                    turn = False
+                    print_board()
         #second row placement
         elif place <= 5:
             #make sure space is not taken
             if board[1][place-3] == 'X' or board[1][place-3] == 'O':
                 print('Choose a different space that one is taken')
+                place = None
             #place move add to counter change turn and display board
             else:
                 board[1][place-3] = x_or_o
+                turn = False
                 print_board()
         #third row placement
-        else:
+        elif place <= 8:
             #make sure space is not taken
             if board[2][place-6] == 'X' or board[2][place-6] == 'O':
                 print('Choose a different space that one is taken')
+                place = None
             #place move add to counter change turn and display board
             else:
                 board[2][place-6] = x_or_o
+                turn = False
                 print_board()
-    #except statement if invalid entry
-    except Exception:
-        print('Invalid entry\nYou must enter a number between 0 and 8')
+        else:
+            print('not a valid integer in the range 0 - 8')
+            place = None
+    #returning the move made allows computer to track which moves have been taken
+    return place
 
 def two_player_mode():
     #initialize counter at 0 and set win to false
@@ -82,8 +95,7 @@ def two_player_mode():
         else:
             x_or_o = 'O'
         #normal operation should work if user enters number from 0 - 8
-        place = int(input('choose where to place your move:\n'))
-        place_x_or_o(place, x_or_o)
+        place_x_or_o(x_or_o)
         counter += 1
         #check for win after every iteration of loop
         win = check_win()
@@ -100,23 +112,21 @@ def single_player_mode():
     win = False
     #computer turn 1
     #go in the middle to guarantee win or tie
-    place_x_or_o(4, 'O')
+    place_x_or_o('O', 4)
     available_moves.remove(4)
 
     #user turn 1
-    player_place = int(input('choose where to place your move:\n'))
-    place_x_or_o(player_place, 'X')
-    available_moves.remove(player_place)
+    place = place_x_or_o('X')
+    available_moves.remove(place)
 
     #computer turn 2 where player move is mirrored
-    place = Tic_Tac_Toe_Bot_Logic.computer_move_2(player_place)
-    place_x_or_o(place, 'O')
+    place = Tic_Tac_Toe_Bot_Logic.computer_move_2(place)
+    place_x_or_o('O', place)
     available_moves.remove(place)
     cpu_last_turn = place
 
     #user turn 2
-    place = int(input('choose where to place your move:\n'))
-    place_x_or_o(place, 'X')
+    place = place_x_or_o('X')
     available_moves.remove(place)
     
     #computer turn 3
@@ -124,24 +134,24 @@ def single_player_mode():
     place = Tic_Tac_Toe_Bot_Logic.computer_defense(board)
     #the computer plays defense if needed or sets up guaranteed win
     if place != None: #have to play defense and guarantee tie
-        place_x_or_o(place, 'O')
+        place_x_or_o('O', place)
         print('computer plays defense and goes in space', place)
         available_moves.remove(place)
 
         #user turn 3
-        place = int(input('choose where to place your move:\n'))
-        place_x_or_o(place, 'X')
+        place = place_x_or_o('X')
         available_moves.remove(place)
 
         #computer turn 4
+        #check if win is possible
         place = Tic_Tac_Toe_Bot_Logic.computer_win(board)
         #play defense if computer can not win
         if place == None:
             place = Tic_Tac_Toe_Bot_Logic.computer_defense(board)
-            #play randomly if computer can not play defense
+            #play randomly if computer can not play defense or win
             if place == None:
                 place = available_moves[random.randint(0, len(available_moves)-1)]
-        place_x_or_o(place, 'O')
+        place_x_or_o('O', place)
         available_moves.remove(place)
 
         #check for win
@@ -150,13 +160,12 @@ def single_player_mode():
             sys.exit()
         
         #user turn 4
-        place = int(input('choose where to place your move:\n'))
-        place_x_or_o(place, 'X')
+        place = place_x_or_o('X')
         available_moves.remove(place)
 
         #computer turn 5
         place = available_moves[0]
-        place_x_or_o(place, 'O')
+        place_x_or_o('O', place)
         
         #check for win
         if check_win() == True:
@@ -173,17 +182,16 @@ def single_player_mode():
         if place == None:
             #play randomly can't guarantee win
             place = available_moves[random.randint(0, len(available_moves)-1)]
-            place_x_or_o(place, 'O')
+            place_x_or_o('O', place)
             available_moves.remove(place)
 
             #user turn 3
-            place = int(input('choose where to place your move:\n'))
-            place_x_or_o(place, 'X')
+            place = place_x_or_o('X')
             available_moves.remove(place)
 
             #computer turn 4
             place = available_moves[0]
-            place_x_or_o(place, 'O')
+            place_x_or_o('O', place)
             available_moves.remove(place)
             
             #check for win
@@ -192,13 +200,12 @@ def single_player_mode():
                 sys.exit()
             
             #user turn 4
-            place = int(input('choose where to place your move:\n'))
-            place_x_or_o(place, 'X')
+            place = place_x_or_o('X')
             available_moves.remove(place)
 
             #computer turn 5
             place = available_moves[0]
-            place_x_or_o(place, 'O')
+            place_x_or_o('O', place)
             
             #check for win
             if check_win() == True:
@@ -208,17 +215,17 @@ def single_player_mode():
                 print('Its a tie')
                 sys.exit()
 
-        place_x_or_o(place, 'O')
+        #win is guaranteed
+        place_x_or_o('O', place)
         available_moves.remove(place)
 
         #user turn 3
-        place = int(input('choose where to place your move:\n'))
-        place_x_or_o(place, 'X')
+        place = place_x_or_o('X')
         available_moves.remove(place)
 
         #computer turn 3
         place = Tic_Tac_Toe_Bot_Logic.computer_win(board)
-        place_x_or_o(place, 'O')
+        place_x_or_o('O', place)
         print('Computer Wins!')
         sys.exit()
 
@@ -230,12 +237,3 @@ if __name__ == '__main__':
         two_player_mode()
     else:
         print('invalid selection goodbye')
-
-#Archived Computer Random Move Code
-"""
-#randomly select a place to go
-place = available_moves[random.randint(0, len(available_moves)-1)]
-place_x_or_o(place, 'O')
-available_moves.remove(place)
-counter += 1
-"""
